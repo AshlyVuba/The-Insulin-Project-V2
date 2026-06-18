@@ -1,11 +1,11 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import FilingRoomPage from "./pages/FilingRoomPage";
-import PharmacyPage from "./pages/PharmacyPage";
-import AdminPage from "./pages/AdminPage";
 import Layout from "./components/common/Layout";
+import LoginPage from "./pages/LoginPage";
+import { FilingRoomPage } from "./pages/FilingRoomPage";
+import { PharmacyPage } from "./pages/PharmacyPage";
+import { AdminPage } from "./pages/PlaceholderPages";
 import { canAccessRoute, getHomeRouteForRole } from "./utils/roleRoutes";
 
 function PrivateRoute({ children }) {
@@ -15,11 +15,9 @@ function PrivateRoute({ children }) {
 
 function RoleRoute({ allowedRoles, children }) {
   const { user } = useAuth();
-
   if (!canAccessRoute(user?.role, allowedRoles)) {
     return <Navigate to={getHomeRouteForRole(user?.role)} replace />;
   }
-
   return children;
 }
 
@@ -32,6 +30,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+
       <Route
         path="/"
         element={
@@ -66,6 +65,7 @@ export default function App() {
           }
         />
       </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

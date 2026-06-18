@@ -16,62 +16,68 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 380, background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "2rem" }}>
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          <div style={{ fontSize: 36, marginBottom: 8 }}>⚡</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1A365D", margin: 0 }}>First Response Express</h1>
-          <p style={{ color: "#718096", fontSize: 13, marginTop: 4 }}>Clinic Staff Portal</p>
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+
+        {/* Logo mark */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-navy mb-4">
+            <span className="text-sky text-2xl font-black">⚡</span>
+          </div>
+          <h1 className="text-xl font-bold text-navy">First Response Express</h1>
+          <p className="text-muted text-sm mt-1">Clinic Staff Portal</p>
         </div>
 
-        {error && (
-          <div style={{ background: "#fde8e8", color: "#a32d2d", padding: "10px 12px", borderRadius: 8, fontSize: 13, marginBottom: "1rem" }}>
-            {error}
-          </div>
-        )}
+        <div className="panel p-6">
+          {error && (
+            <div className="bg-red-50 text-red-700 text-sm px-3 py-2.5 rounded-lg mb-4 border border-red-100">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ fontSize: 13, fontWeight: 500, color: "#4a5568", display: "block", marginBottom: 6 }}>
-              Email address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@clinic.gov.za"
-              required
-              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box", outline: "none" }}
-            />
-          </div>
-          <div style={{ marginBottom: "1.25rem" }}>
-            <label style={{ fontSize: 13, fontWeight: 500, color: "#4a5568", display: "block", marginBottom: 6 }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, boxSizing: "border-box", outline: "none" }}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ width: "100%", background: loading ? "#94a3b8" : "#1A365D", color: "#fff", border: "none", borderRadius: 8, padding: "10px", fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="label" htmlFor="email">Email address</label>
+              <input
+                id="email"
+                type="email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@clinic.gov.za"
+                required
+              />
+            </div>
 
-        <div style={{ marginTop: "1.5rem", background: "#f8fafc", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#718096" }}>
-          <strong>Demo credentials:</strong><br />
-          filing@clinic.gov.za / password123<br />
-          pharmacy@clinic.gov.za / password123<br />
-          admin@clinic.gov.za / password123
+            <div>
+              <label className="label" htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                className="input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full justify-center py-2.5 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+        </div>
+
+        {/* Demo credentials hint */}
+        <div className="mt-4 bg-slate-50 border border-border rounded-lg p-3 text-xs text-muted">
+          <p className="font-semibold text-gray-600 mb-1">Demo credentials</p>
+          <p>filing@clinic.gov.za / password123</p>
+          <p>pharmacy@clinic.gov.za / password123</p>
+          <p>admin@clinic.gov.za / password123</p>
         </div>
       </div>
     </div>

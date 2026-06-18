@@ -2,65 +2,77 @@ import React from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { canAccessRoute } from "../../utils/roleRoutes";
+import { getInitials } from "../../utils/helpers";
+import Icon from "./Icon";
+
+const NAV_ITEMS = [
+  { to: "/admin",    label: "Admin",            roles: ["admin"] },
+  { to: "/filing",   label: "Filing Room",       roles: ["filing"] },
+  { to: "/pharmacy", label: "Pharmacy Kanban",   roles: ["pharmacy"] },
+];
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const navItems = [
-    { to: "/admin", label: "Admin", roles: ["admin"] },
-    { to: "/filing", label: "Filing Room", roles: ["filing"] },
-    { to: "/pharmacy", label: "Pharmacy Kanban", roles: ["pharmacy"] },
-  ].filter((item) => canAccessRoute(user?.role, item.roles));
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const visibleNav = NAV_ITEMS.filter((item) =>
+    canAccessRoute(user?.role, item.roles)
+  );
+
+  const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* Top Bar */}
-      <header style={{ background: "#1A365D", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 22, color: "#00B4D8" }}>FRE</span>
-          <span style={{ color: "#fff", fontWeight: 500, fontSize: 16 }}>First Response Express</span>
-          <span style={{ background: "#00B4D8", color: "#fff", fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}>BETA</span>
+    <div className="min-h-screen flex flex-col bg-canvas">
+
+      {/* ── Top bar ── */}
+      <header className="bg-navy h-14 flex items-center justify-between px-6 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="text-sky font-bold text-xl tracking-tight">FRE</span>
+          <span className="text-white font-medium text-sm">First Response Express</span>
+          <span className="bg-sky/20 text-sky text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide">
+            BETA
+          </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>{user?.clinic}</span>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#00B4D8", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 600 }}>
-            {user?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+
+        <div className="flex items-center gap-3">
+          <span className="text-white/50 text-xs hidden sm:block">{user?.clinic}</span>
+
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-sky flex items-center justify-center text-white text-xs font-bold">
+            {getInitials(user?.name)}
           </div>
-          <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>{user?.name}</span>
-          <button onClick={handleLogout} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 6, padding: "4px 12px", cursor: "pointer", fontSize: 12 }}>
+
+          <span className="text-white/80 text-xs hidden sm:block">{user?.name}</span>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-lg px-2.5 py-1.5 text-xs transition-colors cursor-pointer bg-transparent"
+          >
+            <Icon name="logout" size={13} />
             Logout
           </button>
         </div>
       </header>
 
-      {/* Nav */}
-      <nav style={{ background: "#F8FAFC", borderBottom: "1px solid #e2e8f0", display: "flex" }}>
-        {navItems.map(({ to, label }) => (
+      {/* ── Sub-nav ── */}
+      <nav className="bg-white border-b border-border flex">
+        {visibleNav.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
-            style={({ isActive }) => ({
-              padding: "12px 20px",
-              fontSize: 13,
-              fontWeight: 500,
-              textDecoration: "none",
-              color: isActive ? "#1A365D" : "#718096",
-              borderBottom: isActive ? "2px solid #1A365D" : "2px solid transparent",
-              background: isActive ? "#fff" : "transparent",
-            })}
+            className={({ isActive }) =>
+              `px-5 py-3 text-sm font-medium transition-colors ${
+                isActive ? "nav-link-active" : "nav-link-inactive"
+              }`
+            }
           >
             {label}
           </NavLink>
         ))}
       </nav>
 
-      {/* Page Content */}
-      <main style={{ flex: 1, padding: "1.25rem 1.5rem" }}>
+      {/* ── Page content ── */}
+      <main className="flex-1 p-5">
         <Outlet />
       </main>
     </div>

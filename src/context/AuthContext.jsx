@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { authApi } from "../api/authApi";
 
 const AuthContext = createContext(null);
 
+const MOCK_USERS = {
+  "filing@clinic.gov.za":   { name: "Nandi Sithole",  role: "filing",   clinic: "Tshwane Municipality Clinic" },
+  "pharmacy@clinic.gov.za": { name: "Dr. K. Molefe",  role: "pharmacy", clinic: "Tshwane Municipality Clinic" },
+  "admin@clinic.gov.za":    { name: "Admin User",      role: "admin",    clinic: "Tshwane Municipality Clinic" },
+};
+
 export function AuthProvider({ children }) {
-  const [token, setToken]     = useState(() => sessionStorage.getItem("fre_token"));
-  const [user, setUser]       = useState(() => {
+  const [token, setToken] = useState(() => sessionStorage.getItem("fre_token"));
+  const [user, setUser]   = useState(() => {
     const u = sessionStorage.getItem("fre_user");
     return u ? JSON.parse(u) : null;
   });
@@ -16,15 +21,18 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await authApi.login(email, password);
-      sessionStorage.setItem("fre_token", data.access_token);
-      sessionStorage.setItem("fre_user", JSON.stringify(data.user));
-      setToken(data.access_token);
-      setUser(data.user);
-      return data.user;
-    } catch (err) {
-      setError(err.response?.data?.detail || "Login failed. Check your credentials.");
-      return null;
+      await new Promise((r) => setTimeout(r, 600));
+      const mockUser = MOCK_USERS[email];
+      if (!mockUser || password !== "password123") {
+        setError("Invalid email or password.");
+        return null;
+      }
+      const access_token = "mock-jwt-" + Date.now();
+      sessionStorage.setItem("fre_token", access_token);
+      sessionStorage.setItem("fre_user", JSON.stringify(mockUser));
+      setToken(access_token);
+      setUser(mockUser);
+      return mockUser;
     } finally {
       setLoading(false);
     }

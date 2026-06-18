@@ -2,21 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --navy:  #1A365D;
-  --sky:   #00B4D8;
-  --green: #2d8a4e;
-  --white: #F8FAFC;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; }
+
+  body {
+    @apply bg-canvas text-gray-800 font-sans;
+    margin: 0;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-canvas; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #F8FAFC;
-  color: #1a202c;
+@layer components {
+  /* Nav link active indicator */
+  .nav-link-active {
+    @apply text-navy border-b-2 border-navy bg-white;
+  }
+  .nav-link-inactive {
+    @apply text-muted border-b-2 border-transparent hover:text-navy hover:border-navy/30 transition-colors;
+  }
+
+  /* Status pills */
+  .pill-urgent   { @apply bg-red-50     text-red-700     text-[11px] font-semibold px-2.5 py-0.5 rounded-full; }
+  .pill-today    { @apply bg-blue-50    text-blue-700    text-[11px] font-semibold px-2.5 py-0.5 rounded-full; }
+  .pill-upcoming { @apply bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full; }
+  .pill-pulled   { @apply bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full; }
+
+  /* Ref code chip */
+  .ref-chip { @apply font-mono text-[11px] bg-slate-100 text-navy px-2 py-0.5 rounded; }
+
+  /* Cards & panels */
+  .panel { @apply bg-white border border-border rounded-lg overflow-hidden; }
+  .panel-header { @apply px-4 py-3 border-b border-border bg-canvas flex items-center justify-between gap-3; }
+
+  /* Buttons */
+  .btn-primary   { @apply bg-navy   text-white text-sm font-semibold px-3.5 py-2 rounded-lg hover:bg-navy/90   active:scale-[.98] transition-all inline-flex items-center gap-1.5 cursor-pointer border-0; }
+  .btn-sky       { @apply bg-sky    text-white text-sm font-semibold px-3.5 py-2 rounded-lg hover:bg-sky/90    active:scale-[.98] transition-all inline-flex items-center gap-1.5 cursor-pointer border-0; }
+  .btn-green     { @apply bg-green  text-white text-sm font-semibold px-3.5 py-2 rounded-lg hover:bg-green/90  active:scale-[.98] transition-all inline-flex items-center gap-1.5 cursor-pointer border-0; }
+  .btn-sm        { @apply text-xs px-2.5 py-1 rounded-lg font-semibold inline-flex items-center gap-1 cursor-pointer border-0; }
+  .btn-ghost     { @apply bg-canvas text-muted border border-border text-xs font-medium px-2.5 py-1 rounded-lg hover:text-navy hover:border-navy/30 transition-colors cursor-pointer; }
+
+  /* Form inputs */
+  .input { @apply w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky/30 focus:border-sky transition-shadow bg-white; }
+  .label { @apply block text-xs font-semibold text-gray-600 mb-1; }
+
+  /* Stat card */
+  .stat-card { @apply bg-slate-50 rounded-lg p-3.5; }
+  .stat-label { @apply text-[10px] font-semibold uppercase tracking-wider text-muted mb-1; }
+  .stat-value { @apply text-2xl font-bold; }
+
+  /* FAB */
+  .fab { @apply w-11 h-11 rounded-lg flex items-center justify-center text-white shadow-md border-0 cursor-pointer active:scale-95 transition-transform; }
+
+  /* Modal */
+  .modal-backdrop { @apply fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50; }
+  .modal-card     { @apply bg-white rounded-xl border border-border shadow-2xl p-5 w-full max-w-md; }
+
+  /* Table */
+  .th { @apply px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted; }
+  .td { @apply px-4 py-3 text-sm text-gray-600; }
+  .td-strong { @apply px-4 py-3 text-sm font-semibold text-gray-800; }
+  .tr { @apply border-b border-slate-50 hover:bg-slate-50/60 transition-colors; }
+
+  /* Toast */
+  .toast { @apply fixed bottom-20 right-6 bg-navy text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-xl z-50 animate-fade-in; }
+
+  /* Kanban card */
+  .kanban-card { @apply bg-white border border-border rounded-lg p-3 hover:shadow-sm transition-shadow; }
+  .kanban-col  { @apply bg-canvas rounded-lg border border-border overflow-hidden; }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+@layer utilities {
+  .text-green { color: #2d8a4e; }
+  .text-amber { color: #b07218; }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in 0.18s ease; }
+}

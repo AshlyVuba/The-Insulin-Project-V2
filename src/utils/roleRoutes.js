@@ -1,15 +1,7 @@
-const ROLE_HOME_ROUTES = {
-  filing: "/filing",
-  pharmacy: "/pharmacy",
-  admin: "/admin",
-};
-
-export function getHomeRouteForRole(role) {
-  return ROLE_HOME_ROUTES[role] || "/login";
-}
-
-export function canAccessRoute(userRole, allowedRoles = []) {
+const ROLE_HOME = { filing: "/filing", pharmacy: "/pharmacy", admin: "/admin" };
+export const getHomeRouteForRole = (role) => ROLE_HOME[role] || "/login";
+export const canAccessRoute = (userRole, allowedRoles = []) => {
   if (!userRole) return false;
   if (userRole === "admin") return true;
   return allowedRoles.includes(userRole);
-}
+};
