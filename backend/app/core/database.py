@@ -43,3 +43,14 @@ def get_db():
 
     finally:
         db.close()
+
+
+def verify_connection():
+    """Called on startup to confirm the DB is reachable."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("✓ PostgreSQL connection verified")
+    except Exception as e:
+        print(f"✗ PostgreSQL connection failed: {e}")
+        raise

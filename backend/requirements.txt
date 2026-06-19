@@ -4,4 +4,4 @@ sqlalchemy
 psycopg[binary]
 python-dotenv
 alembic
-pydanticp
+pydantic-settings
