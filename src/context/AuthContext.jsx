@@ -2,11 +2,7 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 
 const AuthContext = createContext(null);
 
-const MOCK_USERS = {
-  "filing@clinic.gov.za":   { name: "Nandi Sithole",  role: "filing",   clinic: "Tshwane Municipality Clinic" },
-  "pharmacy@clinic.gov.za": { name: "Dr. K. Molefe",  role: "pharmacy", clinic: "Tshwane Municipality Clinic" },
-  "admin@clinic.gov.za":    { name: "Admin User",      role: "admin",    clinic: "Tshwane Municipality Clinic" },
-};
+// MOCK_USERS removed! We are now using real backend authentication.
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => sessionStorage.getItem("fre_token"));
@@ -21,18 +17,44 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      await new Promise((r) => setTimeout(r, 600));
-      const mockUser = MOCK_USERS[email];
-      if (!mockUser || password !== "password123") {
+      // Security Ticket 1 Execution: Real API Call to FastAPI
+      // FastAPI's OAuth2PasswordBearer expects form data, not JSON!
+      const formData = new URLSearchParams();
+      formData.append('username', email); 
+      formData.append('password', password);
+
+      // Point this to your live Render/Heroku URL when deployed
+      const BACKEND_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"; 
+      
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        // Catches the 401 Unauthorized from your security.py file
         setError("Invalid email or password.");
         return null;
       }
-      const access_token = "mock-jwt-" + Date.now();
-      sessionStorage.setItem("fre_token", access_token);
-      sessionStorage.setItem("fre_user", JSON.stringify(mockUser));
-      setToken(access_token);
-      setUser(mockUser);
-      return mockUser;
+
+      // Expected Backend Response: 
+      // { "access_token": "eyJhb...", "token_type": "bearer", "user": { "role": "filing", "name": "Nandi" } }
+      const data = await response.json();
+
+      // Store the real JWT securely
+      sessionStorage.setItem("fre_token", data.access_token);
+      sessionStorage.setItem("fre_user", JSON.stringify(data.user));
+      
+      setToken(data.access_token);
+      setUser(data.user);
+      
+      return data.user;
+    } catch (err) {
+      setError("Network error. Could not connect to the authentication server.");
+      return null;
     } finally {
       setLoading(false);
     }
