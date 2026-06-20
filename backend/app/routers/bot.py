@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Request, Response, HTTPException, status
+from fastapi import APIRouter, Depends, Request, Response, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from twilio.twiml.messaging_response import MessagingResponse

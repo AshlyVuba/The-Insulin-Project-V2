@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+import enum
+
 
 from sqlalchemy import (
     Integer,
@@ -16,6 +18,13 @@ from sqlalchemy.orm import (
 from app.models.base import Base
 
 
+class AppointmentStatus(str, enum.Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+    completed = "completed"
+    pulled = "pulled"
+    dispensed = "dispensed"
 class Appointment(Base):
     __tablename__ = "appointments"
 
