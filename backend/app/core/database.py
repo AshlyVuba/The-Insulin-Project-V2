@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -13,9 +14,13 @@ load_dotenv(env_path)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL missing from .env"
-    )
+    print("\n" + "=" * 50)
+    print("Database configuration error")
+    print("=" * 50)
+    print("\nDATABASE_URL was not found.")
+    print("Please verify your .env configuration.")
+    print("\nApplication startup aborted.")
+    sys.exit(1)
 
 # SQLAlchemy Engine with Connection Pool
 engine = create_engine(
@@ -46,11 +51,24 @@ def get_db():
 
 
 def verify_connection():
-    """Called on startup to confirm the DB is reachable."""
     try:
         with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        print("✓ PostgreSQL connection verified")
+            result = conn.execute(
+                text(
+                    "SELECT current_user, current_database();"
+                )
+            )
+
+            user, database = result.fetchone()
+
+            print(f"✓ Connected as {user}")
+            print(f"✓ Connected to database {database}")
+
     except Exception as e:
-        print(f"✗ PostgreSQL connection failed: {e}")
-        raise
+        print("\n" + "=" * 50)
+        print("Database connection error")
+        print("=" * 50)
+        print(f"\nUnable to connect to PostgreSQL.")
+        print(f"Reason: {e}")
+        print("\nApplication startup aborted.")
+        sys.exit(1)
