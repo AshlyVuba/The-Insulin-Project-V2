@@ -16,8 +16,8 @@ from app.models.medication_script import MedicationScript
 from app.models.appointment import Appointment
 from app.models.queue import Queue
 
-# Load .env first
-env_path = Path(__file__).resolve().parents[1] / ".env"
+# Load ..env first
+env_path = Path(__file__).resolve().parents[1] / "..env"
 load_dotenv(env_path)
 
 
@@ -28,7 +28,7 @@ config = context.config
 database_url = os.getenv("DATABASE_URL")
 
 if not database_url:
-    raise RuntimeError("DATABASE_URL missing from .env")
+    raise RuntimeError("DATABASE_URL missing from ..env")
 
 config.set_main_option(
     "sqlalchemy.url",
@@ -41,7 +41,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-# other values from the config, defined by the needs of env.py,
+# other values from the config, defined by the needs of .env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.

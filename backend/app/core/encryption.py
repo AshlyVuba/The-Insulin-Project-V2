@@ -9,7 +9,7 @@ encryption_key = os.getenv("POPIA_ENCRYPTION_KEY")
 if not encryption_key:
     # If no key exists, generate a temporary one (DO NOT use this in production)
     encryption_key = Fernet.generate_key().decode()
-    print("WARNING: Using a temporary encryption key. Set POPIA_ENCRYPTION_KEY in your .env file!")
+    print("WARNING: Using a temporary encryption key. Set POPIA_ENCRYPTION_KEY in your ..env file!")
 
 fernet = Fernet(encryption_key.encode())
 

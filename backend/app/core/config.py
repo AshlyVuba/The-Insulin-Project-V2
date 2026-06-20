@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
 
     class Config:
-        env_file = ".env"
+        env_file = "..env"
 
     @property
     def DATABASE_URL(self):

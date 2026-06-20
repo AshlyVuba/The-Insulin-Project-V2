@@ -7,8 +7,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 
-# Load .env
-env_path = Path(__file__).resolve().parents[2] / ".env"
+# Load ..env
+env_path = Path(__file__).resolve().parents[2] / "..env"
 load_dotenv(env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -18,7 +18,7 @@ if not DATABASE_URL:
     print("Database configuration error")
     print("=" * 50)
     print("\nDATABASE_URL was not found.")
-    print("Please verify your .env configuration.")
+    print("Please verify your ..env configuration.")
     print("\nApplication startup aborted.")
     sys.exit(1)
 
