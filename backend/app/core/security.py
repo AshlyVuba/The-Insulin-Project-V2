@@ -15,10 +15,11 @@ ALGORITHM = "HS256"
 
 # OWASP A07:2021 (Identification and Authentication Failures) Defense:
 # Tokens expire after an 8-hour clinic shift to prevent hijacked sessions.
-ACCESS_TOKEN_EXPIRE_MINUTES = 480 
+ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 # FastAPI utility to extract the token from the Authorization header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+
 
 # ==========================================
 # 1. GENERATE TOKEN (LOGIN ROUTE)
@@ -34,14 +35,15 @@ def create_access_token(data: dict) -> str:
         raise RuntimeError("CRITICAL: JWT_SECRET_KEY environment variable is missing.")
 
     to_encode = data.copy()
-    
+
     # Set the strict expiration timestamp
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    
+
     # Sign the token using HMAC SHA-256
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 # ==========================================
 # 2. VERIFY TOKEN (MIDDLEWARE FOR ENDPOINTS)
@@ -49,7 +51,7 @@ def create_access_token(data: dict) -> str:
 
 def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
     """
-    Middleware that intercepts API requests to validate the token 
+    Middleware that intercepts API requests to validate the token
     before allowing access to protected clinic data.
     """
     credentials_exception = HTTPException(
@@ -57,23 +59,23 @@ def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
         detail="Could not validate credentials.",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
-        # OWASP A02:2021 Defense: 
+        # OWASP A02:2021 Defense:
         # Explicitly enforce the 'HS256' algorithm to prevent 'None' algorithm attacks.
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
+
         # Extract the user's role
         role: str = payload.get("role")
-        
+
         # OWASP A01:2021 (Broken Access Control) Groundwork:
         # If the token is valid but has no role assigned, block access immediately.
         if role is None:
             raise credentials_exception
-            
+
         # Return the decoded payload so the endpoint knows exactly who is making the request
         return payload
-        
+
     except jwt.ExpiredSignatureError:
         # Triggered automatically if the 8-hour shift window has passed
         raise HTTPException(
@@ -84,3 +86,27 @@ def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
     except jwt.PyJWTError:
         # Triggered if the token is malformed, tampered with, or signed with the wrong key
         raise credentials_exception
+
+
+# ==========================================
+# 3. ROLE-BASED ACCESS CONTROL (OWASP A01)
+# ==========================================
+
+class RoleChecker:
+    def __init__(self, allowed_roles: list[str]):
+        """Initializes the required roles for a specific route."""
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: dict = Depends(verify_token)):
+        """
+        FastAPI runs this before executing the route.
+        Blocks OWASP A01 (Broken Access Control) attempts.
+        """
+        user_role = current_user.get("role")
+
+        if user_role not in self.allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Denied: The '{user_role}' role does not have permission to perform this action.",
+            )
+        return current_user

@@ -12,6 +12,9 @@ import os
 from app.models.base import Base
 from app.models.clinic import Clinic
 from app.models.patient import Patient
+from app.models.medication_script import MedicationScript
+from app.models.appointment import Appointment
+from app.models.queue import Queue
 
 # Load .env first
 env_path = Path(__file__).resolve().parents[1] / ".env"

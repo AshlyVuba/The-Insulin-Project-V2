@@ -4,4 +4,7 @@ sqlalchemy
 psycopg[binary]
 python-dotenv
 alembic
-pydanticp
+pydantic-settings
+PyJWT
+httpx
+twilio

@@ -44,21 +44,13 @@ def get_db():
     finally:
         db.close()
 
+
 def verify_connection():
+    """Called on startup to confirm the DB is reachable."""
     try:
         with engine.connect() as conn:
-            result = conn.execute(
-                text(
-                    "SELECT current_user, current_database();"
-                )
-            )
-
-            user, database = result.fetchone()
-
-            print(f"✓ Connected as {user}")
-            print(f"✓ Connected to database {database}")
-
+            conn.execute(text("SELECT 1"))
+        print("✓ PostgreSQL connection verified")
     except Exception as e:
-        raise RuntimeError(
-            f"Database connection failed: {e}"
-        )
+        print(f"✗ PostgreSQL connection failed: {e}")
+        raise
