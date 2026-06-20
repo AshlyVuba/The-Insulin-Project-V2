@@ -54,3 +54,33 @@ def get_upcoming_appointments(db: Session = Depends(get_db)):
         count=len(appointments),
         appointments=appointments,
     )
+
+
+# ── PATCH /filing/files/:id/send ─────────────────────────────────────────────
+@router.patch(
+    "/files/{appointment_id}/send",
+    summary="Mark file as sent to pharmacy",
+)
+def send_file_to_pharmacy(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Filing clerk action — marks a file as pulled and sent to the pharmacy queue.
+    Status transition: confirmed → pulled.
+    """
+    appt = db.get(Appointment, appointment_id)
+
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found.")
+
+    if appt.status != AppointmentStatus.confirmed:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Cannot send: status is '{appt.status}', expected 'confirmed'.",
+        )
+
+    appt.status = AppointmentStatus.pulled
+    db.commit()
+    db.refresh(appt)
+    return {"status": "pulled", "id": appointment_id}

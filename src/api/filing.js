@@ -1,26 +1,42 @@
 import client from "./client";
 
 /**
- * GET /filing/slots
- * Returns an array of arrival slot objects, each with a files[] array.
- * Expected shape:
- * [
- *   {
- *     id: "slot-0800",
- *     label: "08:00 – 09:00",
- *     badge: "urgent" | "today" | "upcoming",
- *     files: [
- *       { id: 1, patient: "Nomsa Dlamini", folder: "FRE-0041", sent: false }
- *     ]
- *   }
- * ]
+ * GET /api/v1/filing/upcoming
+ * Backend returns: { count: N, appointments: [{ id, patient_name, folder_number, collection_date, time_slot }] }
+ *
+ * We transform this into the grouped slot shape the FilingRoomPage expects:
+ * [{ id, label, badge, files: [{ id, patient, folder, sent }] }]
  */
 export const getFilingSlots = () =>
-  client.get("/filing/slots").then((res) => res.data);
+  client.get("/api/v1/filing/upcoming").then((res) => {
+    const appointments = res.data.appointments ?? [];
+
+    // Group appointments by time_slot
+    const slotMap = {};
+    appointments.forEach((appt) => {
+      const key = appt.time_slot;
+      if (!slotMap[key]) {
+        slotMap[key] = {
+          id:    `slot-${key.replace(/[^a-zA-Z0-9]/g, "")}`,
+          label: key,
+          badge: "upcoming",
+          files: [],
+        };
+      }
+      slotMap[key].files.push({
+        id:      appt.id,
+        patient: appt.patient_name,
+        folder:  appt.folder_number,
+        sent:    false,
+      });
+    });
+
+    return Object.values(slotMap);
+  });
 
 /**
- * PATCH /filing/files/:id/send
+ * PATCH /api/v1/filing/files/:id/send
  * Marks a file as sent to pharmacy.
  */
 export const sendFileToPharmacy = (fileId) =>
-  client.patch(`/filing/files/${fileId}/send`).then((res) => res.data);
+  client.patch(`/api/v1/filing/files/${fileId}/send`).then((res) => res.data);
