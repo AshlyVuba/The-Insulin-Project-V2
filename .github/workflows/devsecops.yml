@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# 🔐 THE FIX: Explicitly grant the pipeline permission to write to GitHub Pages
+permissions:
+  contents: read
+  pages: write      
+  id-token: write   
+
 jobs:
   # ==========================================
-  # JOB 1: BACKEND SECURITY SCAN (Already working!)
+  # JOB 1: BACKEND SECURITY SCAN
   # ==========================================
   security-scan:
     name: OWASP & Code Health Scan
@@ -22,22 +28,20 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Security Tools (Bandit)
+    - name: Install Security Tools
       run: |
         python -m pip install --upgrade pip
         pip install bandit
 
     - name: Execute SAST Scan
-      run: |
-        bandit -r backend/ -ll -ii
+      run: bandit -r backend/ -ll -ii
 
   # ==========================================
-  # JOB 2: FRONTEND BUILD & DEPLOY (The Fix!)
+  # JOB 2: FRONTEND BUILD
   # ==========================================
   frontend-build:
     name: Build React Frontend
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
@@ -45,20 +49,37 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18' # Ensure this matches the Node version you use locally
+        node-version: '18'
 
     - name: Install Dependencies
-      run: npm ci # 'ci' is faster and more reliable for automated builds than 'install'
+      run: npm ci 
 
     - name: Build the React Application
       run: npm run build
       env:
-        # Pass your environment variables so the build process can see them!
-        REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+        # Keep this blank or point to your cloud backend if Tshepang deployed it
+        REACT_APP_API_URL: ""
 
-    # (Optional) If you are using GitHub Pages, this step uploads the build folder
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v3
+    # 🌐 THE FIX: Use the official GitHub Pages configuration steps
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
       with:
-        name: frontend-build
-        path: build/
+        path: './build'
+
+  # ==========================================
+  # JOB 3: PUBLISH TO LIVE INTERNET
+  # ==========================================
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: [security-scan, frontend-build] # Waits for BOTH to pass!
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
