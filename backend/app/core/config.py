@@ -1,5 +1,12 @@
 from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
 
+load_dotenv() 
+
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+POPIA_ENCRYPTION_KEY = os.getenv("POPIA_ENCRYPTION_KEY")
 
 class Settings(BaseSettings):
     DB_HOST: str

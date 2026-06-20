@@ -1,0 +1,18 @@
+Issues & Gaps
+Plaintext passwords in auth.py. DEMO_USERS has "password": "password123" compared directly with ==. There's no hashing. Even for a demo, if this ever hits a real database, the comment says "replace before production" but the pattern is risky to leave in.
+POPIA encryption key committed to the repo. REACT_APP_.env contains a real Fernet key (wLwOsok5GvWuoN0BZreNJJlGwpihkOMjF-XUFXTan20=). This file is tracked by git (it's in the RAR). This key should be rotated immediately and the file added to .gitignore. The git history shows a commit specifically to remove .env from tracking — but this REACT_APP_.env file slipped through.
+encryption.py silently generates a throwaway key if none is set. If POPIA_ENCRYPTION_KEY is missing in production, data gets encrypted with a temporary key that's discarded on restart — making all encrypted data permanently unreadable. The print("WARNING...") won't be seen in a production log aggregator. This should raise RuntimeError instead, like security.py does for JWT_SECRET_KEY.
+
+🟡 Medium
+
+Frontend/backend API contract mismatch. src/api/pharmacy.js calls /api/v1/pharmacy/ready and /api/v1/pharmacy/cards/:id/collect — but neither endpoint exists in pharmacy.py. The router only has /incoming, /pack/:id, and /dispense/:id. The Pharmacy Kanban's "Ready" column and "Confirm Collected" button will always fail with 404s.
+filing.py bug — contradictory filter. The upcoming appointments query has both .where(Appointment.status == AppointmentStatus.confirmed) and .where(Appointment.status.not_in(list(EXCLUDED_STATUSES))) — the second clause is redundant (confirmed isn't in EXCLUDED_STATUSES) but also shows copy-paste confusion. More importantly, AppointmentStatus is imported from app.models.appointment but that model doesn't define it — the Appointment model in the code only has a plain String for status, no Enum.
+dispense endpoint skips status validation. pharmacy.py's /dispense/:id patches status to dispensed regardless of current status — a ready check is missing, unlike the other two endpoints that validate their preconditions.
+patient.py model is missing its encryption fields. The model has first_name, last_name, phone_number etc. as plain String columns, but encryption.py defines EncryptedString. These PII fields should be using EncryptedString — as-is, POPIA encryption isn't actually protecting patient data in the database.
+
+🟢 Minor / Polish
+
+In-memory retry queue in backend_client.py is lost on restart. Fine for a hackathon, but worth noting — failed confirmations don't survive a bot restart. A simple SQLite file or the main Postgres DB would fix this.
+patient_bot.py has a duplicate generate_express_code() function that uses random.choices (non-cryptographic), while code_generator.py has the correct generate_fast_track_code() using secrets. The bot calls the correct one from code_generator, but the old function is still sitting there dead.
+appointments.py router is empty. The bot calls /api/v1/appointments/confirm and /api/v1/appointments/opt-out, but those endpoints don't exist yet.
+CORS is locked to localhost. Fine for dev, but a deployment URL will need to be added to allow_origins.

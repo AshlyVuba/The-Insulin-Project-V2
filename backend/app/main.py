@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import verify_connection
-from app.routers import filing, pharmacy, auth
+from app.routers import filing, pharmacy, auth, bot
 
 app = FastAPI(
     title="Insulin Express API",
@@ -36,3 +36,8 @@ def startup_event():
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "ok", "service": "Insulin Express API"}
+
+app.include_router(auth.router,     prefix="/api")
+app.include_router(filing.router,   prefix="/api/v1")
+app.include_router(pharmacy.router, prefix="/api/v1")
+app.include_router(bot.router,      prefix="/api/v1")
