@@ -1,6 +1,5 @@
 name: First Response Express DevSecOps Pipeline
 
-# 1. THE TRIGGER: Run this automatically on every push to the main branch
 on:
   push:
     branches: [ "main" ]
@@ -9,12 +8,11 @@ on:
 
 jobs:
   # ==========================================
-  # JOB 1: STATIC APPLICATION SECURITY TESTING
+  # JOB 1: BACKEND SECURITY SCAN (Already working!)
   # ==========================================
   security-scan:
     name: OWASP & Code Health Scan
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
@@ -29,27 +27,38 @@ jobs:
         python -m pip install --upgrade pip
         pip install bandit
 
-    - name: Execute SAST Scan (OWASP A06 Mitigation)
-      # Bandit will scan the entire backend folder. 
-      # -ll ignores low-severity issues to keep the hackathon moving.
-      # -ii ignores low-confidence issues.
+    - name: Execute SAST Scan
       run: |
-        echo "Running Bandit Security Scanner..."
         bandit -r backend/ -ll -ii
 
   # ==========================================
-  # JOB 2: CLOUD DEPLOYMENT
+  # JOB 2: FRONTEND BUILD & DEPLOY (The Fix!)
   # ==========================================
-  deploy-to-cloud:
-    name: Deploy to Production
-    needs: security-scan # 🛑 THE BOUNCER: This job ONLY runs if the security scan passes!
+  frontend-build:
+    name: Build React Frontend
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Trigger Cloud Server (Render / Azure / AWS)
-      # In a real enterprise environment, this step pings the cloud provider 
-      # to pull the clean, verified code and restart the live server.
-      run: |
-        echo "Security scan passed successfully! No OWASP vulnerabilities detected."
-        echo "Initiating zero-downtime deployment to the live public clinic portal..."
-        # Example real-world trigger: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # Ensure this matches the Node version you use locally
+
+    - name: Install Dependencies
+      run: npm ci # 'ci' is faster and more reliable for automated builds than 'install'
+
+    - name: Build the React Application
+      run: npm run build
+      env:
+        # Pass your environment variables so the build process can see them!
+        REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+    # (Optional) If you are using GitHub Pages, this step uploads the build folder
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: build/
