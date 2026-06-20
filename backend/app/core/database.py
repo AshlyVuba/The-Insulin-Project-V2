@@ -50,25 +50,43 @@ def get_db():
         db.close()
 
 
+# def verify_connection():
+#     try:
+#         with engine.connect() as conn:
+#             result = conn.execute(
+#                 text(
+#                     "SELECT current_user, current_database();"
+#                 )
+#             )
+
+#             user, database = result.fetchone()
+
+#             print(f"✓ Connected as {user}")
+#             print(f"✓ Connected to database {database}")
+
+#     except Exception as e:
+#         print("\n" + "=" * 50)
+#         print("Database connection error")
+#         print("=" * 50)
+#         print(f"\nUnable to connect to PostgreSQL.")
+#         print(f"Reason: {e}")
+#         print("\nApplication startup aborted.")
+#         sys.exit(1)
+
 def verify_connection():
     try:
         with engine.connect() as conn:
-            result = conn.execute(
-                text(
-                    "SELECT current_user, current_database();"
-                )
-            )
-
-            user, database = result.fetchone()
-
-            print(f"✓ Connected as {user}")
-            print(f"✓ Connected to database {database}")
-
+            # Check the dialect type and run the appropriate query
+            if engine.dialect.name == "postgresql":
+                conn.execute(text("SELECT current_user, current_database();"))
+            else:
+                # For SQLite, just do a simple selection that always works
+                conn.execute(text("SELECT 1;")) 
+            print("✓ Database connection pool initialized")
     except Exception as e:
-        print("\n" + "=" * 50)
+        print("==================================================")
         print("Database connection error")
-        print("=" * 50)
-        print(f"\nUnable to connect to PostgreSQL.")
-        print(f"Reason: {e}")
-        print("\nApplication startup aborted.")
+        print("==================================================")
+        print(f"Unable to connect. Reason: {e}")
+        import sys
         sys.exit(1)

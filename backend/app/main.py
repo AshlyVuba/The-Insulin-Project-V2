@@ -10,13 +10,9 @@ app = FastAPI(
     description="Backend for the First Response Express clinic portal.",
 )
 
-# ── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=["http://localhost:3000"], # This allows your React app to connect!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,6 +33,7 @@ def startup_event():
 def health():
     return {"status": "ok", "service": "Insulin Express API"}
 
+# ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth.router,     prefix="/api")
 app.include_router(filing.router,   prefix="/api/v1")
 app.include_router(pharmacy.router, prefix="/api/v1")
