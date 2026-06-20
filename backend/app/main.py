@@ -22,6 +22,7 @@ app.add_middleware(
 app.include_router(auth.router,     prefix="/api")
 app.include_router(filing.router,   prefix="/api/v1")
 app.include_router(pharmacy.router, prefix="/api/v1")
+app.include_router(bot.router,      prefix="/api/v1")
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 @app.on_event("startup")
@@ -38,3 +39,13 @@ app.include_router(auth.router,     prefix="/api")
 app.include_router(filing.router,   prefix="/api/v1")
 app.include_router(pharmacy.router, prefix="/api/v1")
 app.include_router(bot.router,      prefix="/api/v1")
+
+# ── Startup ───────────────────────────────────────────────────────────────────
+@app.on_event("startup")
+def startup_event():
+    verify_connection()
+
+# ── Health check ──────────────────────────────────────────────────────────────
+@app.get("/health", tags=["Health"])
+def health():
+    return {"status": "ok", "service": "Insulin Express API"}

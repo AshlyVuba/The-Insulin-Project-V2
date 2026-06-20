@@ -14,14 +14,14 @@ from sqlalchemy.orm import (
 )
 from app.models.base import Base
 
+
 class AppointmentStatus(str, enum.Enum):
     pending = "pending"
     confirmed = "confirmed"
     cancelled = "cancelled"
     completed = "completed"
-    pulled = "pulled"
-    dispensed = "dispensed"
-
+    pulled = "pulled"       # Added to fix filing.py
+    dispensed = "dispensed" # Added to fix filing.py
 class Appointment(Base):
     __tablename__ = "appointments"
 
