@@ -3,29 +3,29 @@ import client from "./client";
 /**
  * GET /api/v1/pharmacy/incoming
  * Returns appointments with status='pulled' — files the filing clerk has sent.
- * Shape: [{ id, name, code, slot }]
+ * Shape: { count, appointments: [{ id, name, code, slot }] }
  */
 export const getIncomingCards = () =>
-  client.get("/api/v1/pharmacy/incoming").then((res) => res.data);
+  client.get("/api/v1/pharmacy/incoming").then((res) => res.data.appointments);
 
 /**
  * GET /api/v1/pharmacy/ready
- * Returns appointments with status='dispensed' — packed, waiting for pickup.
- * Shape: [{ id, name, code, slot }]
+ * Returns appointments with status='ready' — packed, waiting for patient pickup.
+ * Shape: { count, appointments: [{ id, name, code, slot }] }
  */
 export const getReadyCards = () =>
-  client.get("/api/v1/pharmacy/ready").then((res) => res.data);
+  client.get("/api/v1/pharmacy/ready").then((res) => res.data.appointments);
 
 /**
  * PATCH /api/v1/pharmacy/cards/:id/pack
- * Moves a card from Incoming → Ready. (pulled → dispensed)
+ * Moves a card from Incoming → Ready. (pulled → ready)
  */
 export const markCardPacked = (cardId) =>
   client.patch(`/api/v1/pharmacy/cards/${cardId}/pack`).then((res) => res.data);
 
 /**
  * PATCH /api/v1/pharmacy/cards/:id/collect
- * Confirms the patient collected their medication.
+ * Confirms the patient collected their medication. (ready → collected)
  */
 export const markCardCollected = (cardId) =>
   client.patch(`/api/v1/pharmacy/cards/${cardId}/collect`).then((res) => res.data);

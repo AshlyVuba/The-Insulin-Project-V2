@@ -1,15 +1,23 @@
 import os
+import random
+import string
 import httpx
 from fastapi import FastAPI, Form, Response
 from twilio.twiml.messaging_response import MessagingResponse
-from backend_client import sync_confirmation_to_backend
-from code_generator import generate_fast_track_code
 
 app = FastAPI(title="First Response Express - Sandbox Webhook")
 
 # Shared backend location (Configurable via environment variable)
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/api/v1")
 
+def generate_express_code() -> str:
+    """
+    Generates a clear 4-character alphanumeric Express Code.
+    Excludes easily confused characters (0, O, 1, I) for clinic reliability.
+    """
+    allowed_chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    code = ''.join(random.choices(allowed_chars, k=4))
+    return f"INS-{code}"
 
 @app.post("/webhook/sms")
 async def inbound_sms_whatsapp(
@@ -31,15 +39,22 @@ async def inbound_sms_whatsapp(
 
     # 2. Strict Deterministic Routing Matrix (No NLP/Free-text allowed)
     if user_input == "1":
-        # Action: Process Slot Confirmation using the secure code generator
-        express_code = generate_fast_track_code()
+        # Action: Process Slot Confirmation
+        express_code = generate_express_code()
         
-        # Call the resilient data sync engine (handles failures, retries, and logging)
-        await sync_confirmation_to_backend(
-            phone_number=clean_phone,
-            express_code=express_code,
-            distribution_channel=channel_type
-        )
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.patch(
+                    f"{BACKEND_API_URL}/appointments/confirm",
+                    json={
+                        "phone_number": clean_phone,
+                        "express_code": express_code,
+                        "distribution_channel": channel_type
+                    },
+                    timeout=2.0
+                )
+        except httpx.HTTPError:
+            pass  # Fallback gracefully if Tshepang's local API port is not actively running yet
 
         msg = twiml_response.message()
         msg.body(
@@ -47,6 +62,7 @@ async def inbound_sms_whatsapp(
             f"Your Fast-Track Express Code is: {express_code}\n"
             f"Present this code at the clinic window to collect your pre-packed workflow files."
         )
+
     elif user_input == "2":
         # Action: Process Opt-Out/Reschedule State
         try:

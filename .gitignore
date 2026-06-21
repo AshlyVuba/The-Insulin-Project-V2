@@ -35,3 +35,6 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+# Frontend .env with committed secrets — keep out of git
+REACT_APP_.env

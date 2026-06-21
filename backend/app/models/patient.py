@@ -15,6 +15,7 @@ from sqlalchemy.orm import (
 )
 
 from app.models.base import Base
+from app.core.encryption import EncryptedString
 
 
 class Patient(Base):
@@ -29,6 +30,7 @@ class Patient(Base):
         ForeignKey("clinics.clinic_id")
     )
 
+    # Identifiers — not encrypted (needed for indexed lookups)
     national_id: Mapped[str] = mapped_column(
         String(20),
         unique=True
@@ -39,18 +41,19 @@ class Patient(Base):
         unique=True
     )
 
+    # PII fields — encrypted at rest for POPIA compliance
     first_name: Mapped[str] = mapped_column(
-        String(100),
+        EncryptedString(255),
         nullable=False
     )
 
     last_name: Mapped[str] = mapped_column(
-        String(100),
+        EncryptedString(255),
         nullable=False
     )
 
     phone_number: Mapped[str] = mapped_column(
-        String(20)
+        EncryptedString(100)
     )
 
     tracking_status: Mapped[str] = mapped_column(

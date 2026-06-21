@@ -3,14 +3,14 @@ from pathlib import Path
 from sqlalchemy import create_engine, text
 import os
 
-# Load ..env
+# Load ...env
 env_path = Path(__file__).parent / "..env"
 load_dotenv(dotenv_path=env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not found in ..env")
+    raise RuntimeError("DATABASE_URL not found in ...env")
 
 print("Attempting database connection...")
 
