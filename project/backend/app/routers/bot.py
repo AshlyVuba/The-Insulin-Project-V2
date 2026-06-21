@@ -8,7 +8,7 @@ from twilio.request_validator import RequestValidator
 from app.core.database import get_db
 from app.models.appointment import Appointment, AppointmentStatus
 from app.core.encryption import hash_phone
-from conversational_bot.code_generator import generate_fast_track_code
+from project.backend.conversational_bot.code_generator import generate_fast_track_code
 
 router = APIRouter(prefix="/bot", tags=["WhatsApp Bot Webhook"])
 

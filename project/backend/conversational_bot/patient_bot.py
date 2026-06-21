@@ -2,8 +2,8 @@ import os
 import httpx
 from fastapi import FastAPI, Form, Response
 from twilio.twiml.messaging_response import MessagingResponse
-from backend_client import sync_confirmation_to_backend
-from code_generator import generate_fast_track_code
+from project.backend.conversational_bot.backend_client import sync_confirmation_to_backend
+from project.backend.conversational_bot.code_generator import generate_fast_track_code
 
 app = FastAPI(title="First Response Express - Sandbox Webhook")
 
