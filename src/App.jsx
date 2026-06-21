@@ -5,7 +5,7 @@ import Layout from "./components/common/Layout";
 import LoginPage from "./pages/LoginPage";
 import { FilingRoomPage } from "./pages/FilingRoomPage";
 import { PharmacyPage } from "./pages/PharmacyPage";
-import { AdminPage } from "./pages/PlaceholderPages";
+import { AdminPage } from "./pages/AdminDashboard.tsx";
 import { canAccessRoute, getHomeRouteForRole } from "./utils/roleRoutes";
 
 function PrivateRoute({ children }) {

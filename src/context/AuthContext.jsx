@@ -20,12 +20,13 @@ export function AuthProvider({ children }) {
       // Security Ticket 1 Execution: Real API Call to FastAPI
       // FastAPI's OAuth2PasswordBearer expects form data, not JSON!
       const formData = new URLSearchParams();
-      formData.append('username', email); 
+      formData.append('username', email);
       formData.append('password', password);
 
-      // Point this to your live Render/Heroku URL when deployed
-      const BACKEND_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"; 
-      
+      // Strip trailing /api or /api/v1 suffix if someone accidentally included it in the env var
+      const rawUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+      const BACKEND_URL = rawUrl.replace(/\/api(\/v1)?$/, "");
+
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -40,17 +41,17 @@ export function AuthProvider({ children }) {
         return null;
       }
 
-      // Expected Backend Response: 
+      // Expected Backend Response:
       // { "access_token": "eyJhb...", "token_type": "bearer", "user": { "role": "filing", "name": "Nandi" } }
       const data = await response.json();
 
       // Store the real JWT securely
       sessionStorage.setItem("fre_token", data.access_token);
       sessionStorage.setItem("fre_user", JSON.stringify(data.user));
-      
+
       setToken(data.access_token);
       setUser(data.user);
-      
+
       return data.user;
     } catch (err) {
       setError("Network error. Could not connect to the authentication server.");

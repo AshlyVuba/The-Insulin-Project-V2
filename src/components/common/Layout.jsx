@@ -7,8 +7,8 @@ import Icon from "./Icon";
 
 const NAV_ITEMS = [
   { to: "/admin",    label: "Admin",            roles: ["admin"] },
-  { to: "/filing",   label: "Filing Room",       roles: ["filing"] },
-  { to: "/pharmacy", label: "Pharmacy Kanban",   roles: ["pharmacy"] },
+  { to: "/filing",   label: "Filing Room",       roles: ["filing",   "admin"] },
+  { to: "/pharmacy", label: "Pharmacy Kanban",   roles: ["pharmacy", "admin"] },
 ];
 
 export default function Layout() {

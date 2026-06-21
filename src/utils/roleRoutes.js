@@ -6,8 +6,9 @@ const ROLE_HOME = {
 
 export const getHomeRouteForRole = (role) => ROLE_HOME[role] || "/login";
 
-// Strict role check — admin does NOT get blanket access to filing/pharmacy
+// Admin gets blanket access to all routes; other roles must be in allowedRoles
 export const canAccessRoute = (userRole, allowedRoles = []) => {
   if (!userRole) return false;
+  if (userRole === "admin") return true;
   return allowedRoles.includes(userRole);
 };
